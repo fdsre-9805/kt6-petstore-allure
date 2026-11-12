@@ -99,7 +99,7 @@ class TestPet:
     async def test_upload(self, client, pet, negative):
         pet_id = 'not_an_integer' if negative else pet['id']
         image = base64.b64decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aAt8AAAAASUVORK5CYII=')
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==')
         form = aiohttp.FormData()
         form.add_field('file', image, filename='kt6.png', content_type='image/png')
         result = await client.request('POST', f'/pet/{pet_id}/uploadImage', form=form)

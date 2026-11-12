@@ -24,9 +24,14 @@ async def pet_data(client):
     yield data
     with allure.step('Убрать только своего тестового питомца'):
         found = await client.request('GET', f'/pet/{data["id"]}')
-        if found['status'] == 200 and found['body'].get('name', '').startswith('kt6_'):
+        assert found['status'] in (200, 404), found
+        if found['status'] == 200:
+            assert found['body'].get('id') == data['id'], 'Чужая запись: не удаляю'
+            assert found['body'].get('tags') == data['tags'], 'Чужая запись: не удаляю'
             deleted = await client.request('DELETE', f'/pet/{data["id"]}')
             assert deleted['status'] in (200, 404), deleted
+            found = await client.request('GET', f'/pet/{data["id"]}')
+            assert found['status'] == 404, found
 
 
 @pytest_asyncio.fixture
@@ -47,9 +52,14 @@ async def user_data(client):
     yield data
     with allure.step('Убрать только своего тестового пользователя'):
         found = await client.request('GET', f'/user/{data["username"]}')
-        if found['status'] == 200 and found['body'].get('id') == data['id']:
+        assert found['status'] in (200, 404), found
+        if found['status'] == 200:
+            assert found['body'].get('id') == data['id'], 'Чужая запись: не удаляю'
+            assert found['body'].get('username') == data['username'], 'Чужая запись: не удаляю'
             deleted = await client.request('DELETE', f'/user/{data["username"]}')
             assert deleted['status'] in (200, 404), deleted
+            found = await client.request('GET', f'/user/{data["username"]}')
+            assert found['status'] == 404, found
 
 
 @pytest_asyncio.fixture
@@ -76,9 +86,14 @@ async def order_data(client, pet):
     yield data
     with allure.step('Убрать заказ, только если он относится к нашему питомцу'):
         found = await client.request('GET', f'/store/order/{free_id}')
-        if found['status'] == 200 and found['body'].get('petId') == pet['id']:
+        assert found['status'] in (200, 404), found
+        if found['status'] == 200:
+            assert found['body'].get('id') == free_id, 'Чужая запись: не удаляю'
+            assert found['body'].get('petId') == pet['id'], 'Чужая запись: не удаляю'
             deleted = await client.request('DELETE', f'/store/order/{free_id}')
             assert deleted['status'] in (200, 404), deleted
+            found = await client.request('GET', f'/store/order/{free_id}')
+            assert found['status'] == 404, found
 
 
 @pytest_asyncio.fixture

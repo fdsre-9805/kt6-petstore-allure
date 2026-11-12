@@ -95,8 +95,9 @@ class TestUser:
     @allure.story('GET /user/logout — выход')
     @allure.title('Выход пользователя: negative={negative}')
     async def test_logout(self, client, negative):
-        method = 'PATCH' if negative else 'GET'
-        result = await client.request(method, '/user/logout')
-        assert result['status'] == (405 if negative else 200), result
-        if not negative:
-            assert result['body']['code'] == 200
+        if negative:
+            pytest.skip('Для GET /user/logout не определены условия отказа. '
+                        'Нужны требования преподавателя; PATCH не заменяет GET.')
+        result = await client.request('GET', '/user/logout')
+        assert result['status'] == 200, result
+        assert result['body']['code'] == 200
